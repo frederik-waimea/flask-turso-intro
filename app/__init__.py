@@ -1,5 +1,6 @@
 from flask          import Flask
 from flask          import render_template
+from flask          import redirect
 from libsql_client  import create_client_sync
 from dotenv         import load_dotenv
 import os
@@ -35,11 +36,11 @@ def connect_db():
 @app.get("/")
 def home():
 
-    # TODO: Switch from SupaBase to Turso queries!
-    # response = supabase.table("things").select().order("name").execute()
-    # records = response.data
+    client = connect_db()
+    result = client.execute("SELECT * FROM things")
+    print(result.rows)
 
-    return render_template("pages/home.jinja", things=???)
+    return render_template("pages/home.jinja", things=result.rows)
 
 
 #-----------------------------------------------------------
@@ -47,8 +48,10 @@ def home():
 #-----------------------------------------------------------
 @app.get("/thing/<int:id>")
 def showThing(id):
+    client= client_db()
+    result=client.execute("SELECT * FROM things WHERE id=?", [id])
 
-    return render_template("pages/thing.jinja", thing=???)
+    return render_template("pages/thing.jinja", thing=result.rows[0])
 
 
 #-----------------------------------------------------------
@@ -56,10 +59,12 @@ def showThing(id):
 #-----------------------------------------------------------
 @app.get("/delete/<int:id>")
 def deleteThing(id):
+    client= client_db()
+    client.execute("DELETE FROM things WHERE id=?", [id])
 
     # TODO!!!!
 
-    return
+    return redirect("/")
 
 
 #-----------------------------------------------------------
